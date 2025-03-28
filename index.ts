@@ -101,15 +101,15 @@ const main = async () => {
 };
 
 // chalk header
-console.log('\n' + chalk.yellow.bold('=================================='));
+console.log('\n' + chalk.yellow.bold('=============================================='));
 console.log(chalk.yellow.bold('📊 Awesome Magic Polkadot Runtime Analysis Tool 📊'));
-console.log(chalk.yellow.bold('==================================\n'));
+console.log(chalk.yellow.bold('==================================================\n'));
 
 main()
     .catch(err => console.error(chalk.red.bold('❌ Error:'), chalk.red(err)))
     .finally(() => {
-        console.log(chalk.yellow.bold('\n=================================='));
+        console.log(chalk.yellow.bold('\n=========================================='));
         console.log(chalk.green.bold('✅ Analysis complete. DOT to the MOON!!!'));
-        console.log(chalk.yellow.bold('==================================\n'));
+        console.log(chalk.yellow.bold('==========================================\n'));
         process.exit();
     });
