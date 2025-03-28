@@ -36,12 +36,12 @@ const main = async () => {
         console.log(chalk.blue(`Runtime ${chalk.bold(specVersion)} at block ${chalk.bold(polkadotUpgrades[i][0])} has ${chalk.bold(pallets.length)} pallets`));
     }
 
-    // sort runtime versions numerically
+    // sort runtime versions by number
     runtimeVersions.sort((a, b) => parseInt(a) - parseInt(b));
     console.log(chalk.green('\n✅ Pallet collection complete\n'));
 
     console.log(chalk.cyan.bold('🔄 Analyzing runtime changes...\n'));
-    // track which pallets stayed, got added, or removed
+    // track which pallets stayed, got added or got removed
     for (let i = 1; i < runtimeVersions.length; i++) {
         const prevVersion = runtimeVersions[i - 1];
         const currVersion = runtimeVersions[i];
@@ -76,7 +76,7 @@ const main = async () => {
             `${stayed.slice(0, 20).join(', ')}... (and ${stayed.length - 20} more)` :
             stayed.join(', ')}`));
 
-        console.log();
+        console.log(); // visual spacer
     }
 
     // pallets that are present in all RT versions
@@ -102,14 +102,14 @@ const main = async () => {
 
 // chalk header
 console.log('\n' + chalk.yellow.bold('=================================='));
-console.log(chalk.yellow.bold('📊 Polkadot Runtime Analysis Tool 📊'));
+console.log(chalk.yellow.bold('📊 Awesome Magic Polkadot Runtime Analysis Tool 📊'));
 console.log(chalk.yellow.bold('==================================\n'));
 
 main()
     .catch(err => console.error(chalk.red.bold('❌ Error:'), chalk.red(err)))
     .finally(() => {
         console.log(chalk.yellow.bold('\n=================================='));
-        console.log(chalk.green.bold('✅ Analysis complete'));
+        console.log(chalk.green.bold('✅ Analysis complete. DOT to the MOON!!!'));
         console.log(chalk.yellow.bold('==================================\n'));
         process.exit();
     });
