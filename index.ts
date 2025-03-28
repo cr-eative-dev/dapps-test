@@ -76,7 +76,7 @@ const main = async () => {
             `${stayed.slice(0, 20).join(', ')}... (and ${stayed.length - 20} more)` :
             stayed.join(', ')}`));
 
-        console.log(); // Extra line for readability
+        console.log();
     }
 
     // pallets that are present in all RT versions
@@ -91,7 +91,7 @@ const main = async () => {
 
     console.log(chalk.cyan.bold(`🌟 Pallets present in all ${runtimeVersions.length} runtime versions (${palletsInAllVersions.length}):`));
 
-    // Format the final list with better readability
+    // final list formatting
     const formattedPallets = palletsInAllVersions
         .sort()
         .map(pallet => chalk.green(pallet))
@@ -100,7 +100,7 @@ const main = async () => {
     console.log(formattedPallets);
 };
 
-// Add a nice header
+// chalk header
 console.log('\n' + chalk.yellow.bold('=================================='));
 console.log(chalk.yellow.bold('📊 Polkadot Runtime Analysis Tool 📊'));
 console.log(chalk.yellow.bold('==================================\n'));
