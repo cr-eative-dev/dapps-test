@@ -1,22 +1,28 @@
 import { ApiPromise, WsProvider } from '@polkadot/api';
 import { polkadot as polkadotUpgrades } from '@polkadot/types-known/upgrades/manual';
+import chalk from 'chalk';
 
 const main = async () => {
+    console.log(chalk.cyan.bold('🔄 Connecting to Polkadot network...'));
     const api = await ApiPromise.create({
         provider: new WsProvider('wss://rpc.polkadot.io')
     });
 
     await api.isReady;
+    console.log(chalk.green('✅ Connected successfully\n'));
 
+    console.log(chalk.cyan.bold('🔍 Fetching block hashes...'));
     const blockHashes = polkadotUpgrades.map(([number, _]) => {
         return api.rpc.chain.getBlockHash(number);
     });
 
     const hashesResolved = await Promise.all(blockHashes);
+    console.log(chalk.green(`✅ Retrieved ${hashesResolved.length} block hashes\n`));
 
     const palletData: Record<string, string[]> = {};
     const runtimeVersions: string[] = [];
 
+    console.log(chalk.cyan.bold('📊 Collecting pallets for each runtime...'));
     // collect all the pallets for each runtime
     for (let i = 0; i < hashesResolved.length; i++) {
         const apiAt = await api.at(hashesResolved[i]);
@@ -27,12 +33,14 @@ const main = async () => {
         palletData[specVersion] = pallets;
         runtimeVersions.push(specVersion);
 
-        console.log(`Runtime ${specVersion} at block ${polkadotUpgrades[i][0]} has ${pallets.length} pallets`);
+        console.log(chalk.blue(`Runtime ${chalk.bold(specVersion)} at block ${chalk.bold(polkadotUpgrades[i][0])} has ${chalk.bold(pallets.length)} pallets`));
     }
 
     // sort runtime versions numerically
     runtimeVersions.sort((a, b) => parseInt(a) - parseInt(b));
+    console.log(chalk.green('\n✅ Pallet collection complete\n'));
 
+    console.log(chalk.cyan.bold('🔄 Analyzing runtime changes...\n'));
     // track which pallets stayed, got added, or removed
     for (let i = 1; i < runtimeVersions.length; i++) {
         const prevVersion = runtimeVersions[i - 1];
@@ -50,21 +58,25 @@ const main = async () => {
         // find pallets that stayed
         const stayed = [...prevPallets].filter(pallet => currPallets.has(pallet));
 
-        console.log(`\nChanges from runtime ${prevVersion} to ${currVersion}:`);
+        console.log(chalk.magenta.bold(`Changes from runtime ${prevVersion} to ${currVersion}:`));
 
         if (removed.length > 0) {
-            console.log(`Removed pallets (${removed.length}): ${removed.join(', ')}`);
+            console.log(chalk.red(`❌ Removed pallets (${removed.length}): ${removed.join(', ')}`));
         } else {
-            console.log('No pallets were removed');
+            console.log(chalk.green('✅ No pallets were removed'));
         }
 
         if (added.length > 0) {
-            console.log(`Added pallets (${added.length}): ${added.join(', ')}`);
+            console.log(chalk.green(`✨ Added pallets (${added.length}): ${added.join(', ')}`));
         } else {
-            console.log('No pallets were added');
+            console.log(chalk.yellow('🔄 No pallets were added'));
         }
 
-        console.log(`Retained pallets (${stayed.length}): ${stayed.join(', ')}`);
+        console.log(chalk.blue(`🔒 Retained pallets (${stayed.length}): ${stayed.length > 20 ?
+            `${stayed.slice(0, 20).join(', ')}... (and ${stayed.length - 20} more)` :
+            stayed.join(', ')}`));
+
+        console.log(); // Extra line for readability
     }
 
     // pallets that are present in all RT versions
@@ -77,8 +89,27 @@ const main = async () => {
         runtimeVersions.every(version => palletData[version].includes(pallet))
     );
 
-    console.log(`\nPallets present in all ${runtimeVersions.length} runtime versions (${palletsInAllVersions.length}):`);
-    console.log(palletsInAllVersions.join(', '));
+    console.log(chalk.cyan.bold(`🌟 Pallets present in all ${runtimeVersions.length} runtime versions (${palletsInAllVersions.length}):`));
+
+    // Format the final list with better readability
+    const formattedPallets = palletsInAllVersions
+        .sort()
+        .map(pallet => chalk.green(pallet))
+        .join(', ');
+
+    console.log(formattedPallets);
 };
 
-main().catch(err => console.error(err)).finally(() => process.exit());
+// Add a nice header
+console.log('\n' + chalk.yellow.bold('=================================='));
+console.log(chalk.yellow.bold('📊 Polkadot Runtime Analysis Tool 📊'));
+console.log(chalk.yellow.bold('==================================\n'));
+
+main()
+    .catch(err => console.error(chalk.red.bold('❌ Error:'), chalk.red(err)))
+    .finally(() => {
+        console.log(chalk.yellow.bold('\n=================================='));
+        console.log(chalk.green.bold('✅ Analysis complete'));
+        console.log(chalk.yellow.bold('==================================\n'));
+        process.exit();
+    });
